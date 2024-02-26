@@ -95,12 +95,37 @@ const handleDeleteRequests = (req, res) => {
     }
 };
 
+const handlePatchRequests = (req, res) => {
+    let body = '';
+    const { url } = req;
+    const userId = url.split('/').pop();
+
+    req.on('data', (chunk) => {
+        body += chunk;
+    });
+
+    req.on('end', () => {
+        const data = JSON.parse(body);
+        const userIndex = users.findIndex((user) => user.id === userId);
+
+        if (userIndex !== 1) {
+            users[userIndex] = {
+              ...users[userIndex],
+              ...data,
+            };
+            sendResponse(res, 200, users[userIndex]);
+        } else {
+            sendResponse(res, 404, 'User not found');
+        }
+    });
+};
 
 const server = http.createServer((req, res) => {
     if (req.method === 'GET') handleGetRequests(req, res);
     else if (req.method === 'POST') handlePostRequests(req, res);
     else if (req.method === 'PUT') handlePutRequests(req, res)
     else if (req.method === 'DELETE') handleDeleteRequests(req, res); 
+    else if (req.method === 'PATCH') handlePatchRequests(req, res);
 });
 
 server.listen(PORT, HOST, () => {
