@@ -52,6 +52,7 @@ export const getEventById = (req, res) => {
 export const updateEvent = (req, res) => {
     const { id } = req.params;
     const event = req.body;
+    
     try {
         const db = JSON.parse(fs.readFileSync('./db.json', 'utf-8'));
         const eventIndex = db.events.findIndex((event) => event.id === id);
@@ -66,6 +67,7 @@ export const updateEvent = (req, res) => {
 
 export const deleteEvent = (req, res) => {
     const { id } = req.params;
+
     try {
         const db = JSON.parse(fs.readFileSync('./db.json', 'utf-8'));
         const eventIndex = db.events.findIndex((event) => event.id === id);
@@ -88,13 +90,18 @@ export const registerAttendee = (req, res) => {
     try {
         const db = JSON.parse(fs.readFileSync('./db.json', 'utf-8'));
         const eventIndex = db.events.findIndex((event) => event.id === id);
-        db.events[eventIndex].registeredUsersCounter += 1;
 
-        fs.writeFileSync('./db.json', JSON.stringify(db, null, '\t'));
-        
-        res.send({ registeredUsersCounter: db.events[eventIndex].registeredUsersCounter });
+        if (db.events[eventIndex].registrationLimit > db.events[eventIndex].registeredUsersCounter) {
+            db.events[eventIndex].registeredUsersCounter += 1;
+
+            fs.writeFileSync('./db.json', JSON.stringify(db, null, '\t'));
+
+            res.send({ registeredUsersCounter: db.events[eventIndex].registeredUsersCounter });
+        } else {
+            res.status(401).send('Registration limit has exceeded!');
+        };
+
     } catch (error) {
-        res.status(500).send('Could not register attendee');
+        res.status(500).send('Could not register attendee!');
     };
 };
-

@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import eventRoutes from './routes/event.routes.js'
+import eventRoutes from './routes/event.routes.js';
 
 const app = express();
 const PORT = 3000;
